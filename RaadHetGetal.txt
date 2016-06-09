@@ -1,0 +1,119 @@
+using System;
+using System.IO;
+using System.Diagnostics;
+
+namespace RaadHetGetal
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(@"
+  _____                 _   _          _                _        _ 
+ |  __ \               | | | |        | |              | |      | |
+ | |__) |__ _  __ _  __| | | |__   ___| |_    __ _  ___| |_ __ _| |
+ |  _  // _` |/ _` |/ _` | | '_ \ / _ \ __|  / _` |/ _ \ __/ _` | |
+ | | \ \ (_| | (_| | (_| | | | | |  __/ |_  | (_| |  __/ || (_| | |
+ |_|  \_\__,_|\__,_|\__,_| |_| |_|\___|\__|  \__, |\___|\__\__,_|_|
+                                              __/ |                
+                                             |___/                          
+
+");
+            Console.ResetColor();
+
+        Start:
+
+            //Hier worden de variabelen gedeclareerd.
+
+            Random willekeurigGetal = new Random();
+            const int max = 10;
+            int juisteNummer = willekeurigGetal.Next(1, max);
+            int gok = 0;
+            int aantalGokken = 0;
+
+            Console.WriteLine("Hoe heet je? (Voer je naam in en druk op Enter)");
+            string naam = Console.ReadLine();
+
+            //Eerst vraag ik de gebruiker om zijn naam en een getal van 1 - 10. 
+
+            Console.WriteLine("Hoi " + naam + ". Noem eens een getal van 1 - {0}.", max);
+
+            // Deze loop wordt herhaald tot het goede antwoord geraden is. Gok is nu 0; de loop wordt dus altijd 1x doorlopen. 
+
+            while (gok != juisteNummer)
+            {
+                aantalGokken++;
+
+                int.TryParse(Console.ReadLine(), out gok);
+
+                if (gok > juisteNummer && gok < max + 1) //Als de gebruiker een te hoog getal raadt tussen 1 en 10 krijgt hij/zij deze melding te zien. 
+                {
+                    Console.WriteLine("{0} is te hoog... Probeer het nog een keer!", gok);
+                }
+                else if (gok < juisteNummer && gok > 0) //Als de gebruiker een te laag getal raadt (maar wel hoger dan 0) krijgt hij/zij deze melding te zien.  
+                {
+                    Console.WriteLine("{0} is te laag... Probeer het nog een keer!", gok);
+                }
+                else if (gok > max || gok == 0) // Als de gebruiker een getal boven de max (10) gokt, krijgt hij/zij deze melding te zien. 
+                {
+                    Console.WriteLine("{0} is ongeldig... Je mag alleen getallen van 1 tot " + max + " gebruiken.", gok);
+                }
+                else if (gok == juisteNummer && aantalGokken == 1) // Deze melding is bedoeld voor het geval dat de speler het getal in één keer raadt. 
+                {
+                    Console.WriteLine("In 1x goed!");
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine(@"
+
+                 ,-""""-.
+               ,'      _ `.
+              /       )_)  \
+             : Goed         :
+             \   gedaan!    /
+              \            /
+               `.        ,'
+                 `.    ,'
+                   `.,'
+                    /\`.   ,-._
+                        `-'     
+									");
+                    Console.ResetColor();
+                    break;
+                }
+
+            /* Als niet aan bovenstaande condities wordt beantwoord, betekent dat dat de gebruiker het getal geraden heeft in meer dan 1 poging. De loop wordt dan verlaten en onderstaande melding wordt getoond.*/
+
+                else
+                {
+                    Console.WriteLine("Ja, {0} was het goede antwoord!", gok);
+                    Console.WriteLine("Je had het goed in {0}", aantalGokken + " pogingen.");
+                }
+            }
+
+            /* Hier maak ik een tekstbestand aan op dezelfde locatie als waar dit spel is opgeslagen. Daarin worden de naam van de speler en zijn/haar score opgeslagen. Als het spel voor het eerst wordt gespeeld, bestaat dit document natuurlijk nog niet. In dat geval moet er één worden aangemaakt.*/
+
+            string pad = Directory.GetCurrentDirectory();
+            using (System.IO.StreamWriter file =
+            new System.IO.StreamWriter(pad + "/Score.txt", true))
+            {
+                file.WriteLine("Naam: " + naam + ", Aantal pogingen: " + aantalGokken);
+                Console.WriteLine("Druk op Enter om nog eens te spelen. Om af te sluiten en de scores te zien, druk op 'Q'.");
+            }
+
+            /*Nu vraag ik de gebruiker of hij/zij nog eens wil spelen. Om af te sluiten kan de speler kiezen voor "Q". Het spel sluit dan en de speler krijgt een overzicht van alle antwoorden te zien. */
+
+            string doorgaan = Console.ReadLine();
+
+            if (doorgaan != "Q" && doorgaan != "q")
+            {
+                goto Start;
+            }
+            else
+            {
+                Process.Start(pad + "/Score.txt");
+                Environment.Exit(0);
+            }
+
+        }
+    }
+}
